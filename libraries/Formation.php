@@ -67,19 +67,6 @@ class Formation
 		{
 			self::add_config($custom_config);
 		}
-
-		// Add the forms from the config file
-		if(isset(self::$_config['forms']) AND is_array(self::$_config['forms']))
-		{
-			foreach(self::$_config['forms'] as $form_name => $attributes)
-			{
-				$fields = $attributes['fields'];
-				unset($attributes['fields']);
-
-				self::add_form($form_name, $attributes, $fields);
-			}
-			unset(self::$_config['forms']);
-		}
 	}
 
 	// --------------------------------------------------------------------
@@ -96,6 +83,19 @@ class Formation
 	public static function add_config($config)
 	{
 		self::$_config = array_merge_recursive(self::$_config, $config);
+
+		// Add the forms from the config array
+		if(isset(self::$_config['forms']) AND is_array(self::$_config['forms']))
+		{
+			foreach(self::$_config['forms'] as $form_name => $attributes)
+			{
+				$fields = $attributes['fields'];
+				unset($attributes['fields']);
+
+				self::add_form($form_name, $attributes, $fields);
+			}
+			unset(self::$_config['forms']);
+		}
 	}
 
 	// --------------------------------------------------------------------
