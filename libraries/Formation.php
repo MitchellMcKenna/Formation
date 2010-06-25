@@ -46,6 +46,15 @@ class Formation
 	 */
 	private static $_forms = array();
 
+	/**
+	 * Valid types for input tags (including HTML5)
+	 */
+	private static $_valid_inputs = array('button','checkbox','color','date','datetime',
+										  'datetime-local','email','file','hidden','image',
+										  'month','number','password','radio','range',
+										  'reset','search','submit','tel','text','time',
+										  'url','week');
+
 	// --------------------------------------------------------------------
 
 	/**
@@ -500,7 +509,7 @@ class Formation
 		{
 			show_error('You must specify a type for the input.');
 		}
-		elseif(!in_array($options['type'], array('text', 'radio', 'checkbox', 'hidden', 'password', 'file', 'submit', 'cancel')))
+		elseif(!in_array($options['type'], self::$_valid_inputs))
 		{
 			show_error(sprintf('"%s" is not a valid input type.', $options['type']));
 		}
