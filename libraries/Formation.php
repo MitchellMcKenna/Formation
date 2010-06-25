@@ -10,7 +10,7 @@
  * @author		Dan Horrigan <http://dhorrigan.com>
  * @license		Apache License v2.0
  * @copyright	2010 Dan Horrigan
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -45,6 +45,11 @@ class Formation
 	 * Used to store the forms
 	 */
 	private static $_forms = array();
+
+	/**
+	 * Used to store the form_validation info
+	 */
+	private static $_validation = array();
 
 	/**
 	 * Valid types for input tags (including HTML5)
@@ -142,6 +147,8 @@ class Formation
 
 		self::$_forms[$form_name]['attributes'] = $attributes;
 		self::$_forms[$form_name]['fields'] = $fields;
+
+		self::parse_validation();
 	}
 
 	// --------------------------------------------------------------------
@@ -190,6 +197,8 @@ class Formation
 		}
 
 		self::$_forms[$form_name]['fields'][$field_name] = $attributes;
+
+		self::parse_validation();
 	}
 
 	// --------------------------------------------------------------------
@@ -232,6 +241,8 @@ class Formation
 			show_error(sprintf('Field "%s" does not exist in form "%s".', $field_name, $form_name));
 		}
 		self::$_forms[$form_name]['fields'][$field_name] = array_merge_recursive(self::$_forms[$form_name][$field_name], $attributes);
+
+		self::parse_validation();
 	}
 
 	// --------------------------------------------------------------------
@@ -599,6 +610,201 @@ class Formation
 		$value = str_replace(array("'", '"'), array("&#39;", "&quot;"), $value);
 
 		return $value;
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * Parse Validation
+	 *
+	 * Adds the validation rules in each field to the $_validation array
+	 * and removes it from the field attributes
+	 *
+	 * @access	private
+	 * @return	void
+	 */
+	private static function parse_validation()
+	{
+		foreach(self::$_forms as $form_name => $form)
+		{
+			$i = 0;
+			foreach($form['fields'] as $name => $attr)
+			{
+				if(!isset($attr['validation']))
+				{
+					continue;
+				}
+
+				self::$_validation[$form_name][$i]['field'] = $name;
+				self::$_validation[$form_name][$i]['label'] = $attr['label'];
+				self::$_validation[$form_name][$i]['rules'] = $attr['validation'];
+				$i++;
+
+				unset(self::$_forms[$form_name]['fields'][$name]['validation']);
+			}
+		}
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * Validate
+	 *
+	 * Runs form validation on the given form
+	 *
+	 * @access	public
+	 * @param	string	$form_name
+	 * @return	bool
+	 */
+	public static function validate($form_name)
+	{
+		if(!class_exists('CI_Form_validation'))
+		{
+			self::$_ci->load->library('form_validation');
+		}
+		self::$_ci->form_validation->set_rules(self::$_validation[$form_name]);
+
+		return self::$_ci->form_validation->run();
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * Error
+	 *
+	 * Returns a single form validation error
+	 *
+	 * @access	public
+	 * @param	string	$field_name
+	 * @param	string	$prefix
+	 * @param	string	$suffix
+	 * @return	string
+	 */
+	public static function error($prefix = '', $suffix = '')
+	{
+		if(!class_exists('CI_Form_validation'))
+		{
+			self::$_ci->load->library('form_validation');
+		}
+
+		return self::$_ci->form_validation->error($field_name, $prefix, $suffix);
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * All Errors
+	 *
+	 * Returns all of the form validation errors
+	 *
+	 * @access	public
+	 * @param	string	$prefix
+	 * @param	string	$suffix
+	 * @return	string
+	 */
+	public static function all_errors($prefix = '', $suffix = '')
+	{
+		if(!class_exists('CI_Form_validation'))
+		{
+			self::$_ci->load->library('form_validation');
+		}
+
+		return self::$_ci->form_validation->error_string($prefix, $suffix);
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * Set Value
+	 *
+	 * Set's a fields value
+	 *
+	 * @access	public
+	 * @param	string	$form_name
+	 * @param	string	$field_name
+	 * @param	mixed	$value
+	 * @return	void
+	 */
+	public static function set_value($form_name, $field_name, $value)
+	{
+		if(!self::field_exists($form_name, $field_name))
+		{
+			show_error(sprintf('Field "%s" does not exist in form "%s".', $field_name, $form_name));
+		}
+		$field =& self::$_forms[$form_name]['fields'][$field_name];
+		switch($field['type'])
+		{
+			case 'radio': case 'checkbox':
+				if(isset($field['items']))
+				{
+					foreach($field['items'] as &$element)
+					{
+						if(is_array($value))
+						{
+							if(in_array($element['value'], $value))
+							{
+								$element['checked'] = 'checked';
+							}
+							else
+							{
+								if(isset($element['checked']))
+								{
+									unset($element['checked']);
+								}
+							}
+						}
+						else
+						{
+							if($element['value'] === $value)
+							{
+								$element['checked'] = 'checked';
+							}
+							else
+							{
+								if(isset($element['checked']))
+								{
+									unset($element['checked']);
+								}
+							}
+						}
+					}
+				}
+				else
+				{
+					$field['value'] = $value;
+				}
+				break;
+			case 'select':
+				$field['selected'] = $value;
+				break;
+			default:
+				$field['value'] = self::prep_value($value);
+				break;
+		}
+	}
+
+	/**
+	 * Repopulate
+	 *
+	 * Repopulates the entire form with the submitted data.
+	 *
+	 * @access	public
+	 * @param	string	$form_name
+	 * @return	string
+	 */
+	public static function repopulate($form_name)
+	{
+		if(!class_exists('CI_Form_validation'))
+		{
+			self::$_ci->load->library('form_validation');
+		}
+		foreach(self::$_forms[$form_name]['fields'] as $name => $attr)
+		{
+			$post_name = str_replace('[]', '', $name);
+
+			$value = isset($_POST[$post_name]) ? $_POST[$post_name] : NULL;
+			self::set_value($form_name, $name, $value);
+		}
 	}
 }
 
