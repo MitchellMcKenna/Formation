@@ -55,7 +55,7 @@ class Formation
 			{
 				show_error('Formation config is not formatted correctly.');
 			}
-			self::$_config = $formation;
+			self::add_config($formation);
 		}
 		else
 		{
@@ -167,7 +167,7 @@ class Formation
 			show_error(sprintf('Field "%s" already exists in form "%s".  If you were trying to modify the field, please use Formation::modify_field($form_name, $field_name, $attributes).', $field_name, $form_name));
 		}
 
-		self::$_forms[$form_name][$field_name] = $attributes;
+		self::$_forms[$form_name]['fields'][$field_name] = $attributes;
 	}
 
 	// --------------------------------------------------------------------
