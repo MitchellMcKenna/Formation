@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Formation</title>
+
+<style type='text/css' media='all'>@import url('./userguide.css');</style>
+<link rel='stylesheet' type='text/css' media='all' href='../userguide.css' />
+
+<meta http-equiv='expires' content='-1' />
+<meta http-equiv= 'pragma' content='no-cache' />
+<meta name='robots' content='all' />
+
+</head>
+<body>
+
+<!-- START NAVIGATION -->
+<div id="nav"><div id="nav_inner"></div></div>
+<div id="nav2"><a name="top">&nbsp;</a></div>
+<div id="masthead">
+<table cellpadding="0" cellspacing="0" border="0" style="width:100%">
+<tr>
+<td><h1>Documentation</h1></td>
+<td id="breadcrumb_right">Author:<a href="http://dhorrigan.com">Dan Horrigan</a></td>
+</tr>
+</table>
+</div>
+<!-- END NAVIGATION -->
+
+
+<!-- START BREADCRUMB -->
+<table cellpadding="0" cellspacing="0" border="0" style="width:100%">
+<tr>
+<td id="breadcrumb">
+<a href="http://dhorrigan.com/formation">Formation</a> &nbsp;&#8250;&nbsp;
+Documentation
+</td>
+</tr>
+</table>
+<!-- END BREADCRUMB -->
+
+<br clear="all" />
+
+
+<!-- START CONTENT -->
+<div id="content">
+
+
+<h1>Formation</h1>
+
+<p>The Formation library allows you to easily generate forms on the fly with well-formatted, valid XHTML. It can either create the forms dynamically given a configuration, or you can use the "helper" functions to create your own form.</p>
+
+<p>Formation also allows you to use the new <strong>HTML5</strong> inputs and validation right out of the box, with no modifications.  More on that later.</p>
+
+<p class="important"><strong>Note:</strong>&nbsp;This documentation is still in progress.  Check back for more updates.</p>
+
+<p class="important"><strong>Note:</strong>&nbsp;Currently the library does not implement any automatic form_validation.  This feature will be available soon.</p>
+
+<h2>License</h2>
+
+<p>Formation is released under the Apache License v2.0. You can read the license here: <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+
+<h2>Installation</h2>
+
+<ol>
+	<li>Head over to the GitHub repo and download the latest version: <a href="http://github.com/dhorrigan/Formation">http://github.com/dhorrigan/Formation</a></li>
+	<li>Copy the libraries/Formation.php file into your application/libraries folder.</li>
+	<li>Copy the config/formation.php file into your application/config folder.</li>
+</ol>
+
+
+<h2>Loading Formation</h2>
+
+<p>You load Formation just link any other library:</p>
+<code>
+	$this->load->library('formation');<br />
+</code>
+
+<h2>Configuration</h2>
+
+<p>Configuring Formation is simple.  In your formation.php config the following options are <strong>REQUIRED</strong>:</p>
+
+<code>
+
+// These tags will wrap around the entire form (inside the &lt;form&gt; tags)<br />
+$formation['form_wrapper_open']	= '&lt;ul&gt;';<br />
+$formation['form_wrapper_close']	= '&lt;/ul&gt;';<br />
+<br />
+// These tags will wrap around each field in the form<br />
+$formation['input_wrapper_open']	= '&lt;li&gt;';<br />
+$formation['input_wrapper_close']	= '&lt;/li&gt;';<br />
+<br />
+// These tags will wrap around the labels for each field<br />
+$formation['label_wrapper_open']	= '&lt;label for="%s"&gt;';<br />
+$formation['label_wrapper_close']	= '&lt;/label&gt;';<br />
+
+</code>
+<p><strong>OPTIONAL:</strong> You can put form configuration right into the config:</p>
+
+<code>
+$formation['forms']['form_name_here'] = array(<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'action'&nbsp;=> 'users/create',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'fields'&nbsp;=> array(<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'id' => array(<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'type'&nbsp; => 'hidden',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'value' => ''<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;),<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'username' => array(<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'label' => 'Username',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'type'&nbsp;&nbsp;=> 'text',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'size'&nbsp;&nbsp;=> '40',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'value' => ''<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;)<br />
+);
+</code>
+
+
+
+</div>
+<!-- END CONTENT -->
+
+
+<div id="footer">
+<p>
+<a href="#top">Top of Page</a>
+</p>
+<p><a href="http://codeigniter.com">CodeIgniter</a> &nbsp;&middot;&nbsp; Copyright &#169; 2010 Dan Horrigan &nbsp;&middot;&nbsp; <a href="http://ellislab.com/">Ellislab, Inc.</a></p>
+</div>
+
+</body>
+</html>
