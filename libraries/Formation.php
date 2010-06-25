@@ -658,10 +658,8 @@ class Formation
 	 */
 	public static function validate($form_name)
 	{
-		if(!class_exists('CI_Form_validation'))
-		{
-			self::$_ci->load->library('form_validation');
-		}
+		self::load_validation();
+
 		self::$_ci->form_validation->set_rules(self::$_validation[$form_name]);
 
 		return self::$_ci->form_validation->run();
@@ -682,10 +680,7 @@ class Formation
 	 */
 	public static function error($prefix = '', $suffix = '')
 	{
-		if(!class_exists('CI_Form_validation'))
-		{
-			self::$_ci->load->library('form_validation');
-		}
+		self::load_validation();
 
 		return self::$_ci->form_validation->error($field_name, $prefix, $suffix);
 	}
@@ -704,10 +699,7 @@ class Formation
 	 */
 	public static function all_errors($prefix = '', $suffix = '')
 	{
-		if(!class_exists('CI_Form_validation'))
-		{
-			self::$_ci->load->library('form_validation');
-		}
+		self::load_validation();
 
 		return self::$_ci->form_validation->error_string($prefix, $suffix);
 	}
@@ -727,10 +719,8 @@ class Formation
 	 */
 	public static function set_value($form_name, $field_name, $value)
 	{
-		if(!self::field_exists($form_name, $field_name))
-		{
-			show_error(sprintf('Field "%s" does not exist in form "%s".', $field_name, $form_name));
-		}
+		self::load_validation();
+
 		$field =& self::$_forms[$form_name]['fields'][$field_name];
 		switch($field['type'])
 		{
@@ -794,16 +784,30 @@ class Formation
 	 */
 	public static function repopulate($form_name)
 	{
-		if(!class_exists('CI_Form_validation'))
-		{
-			self::$_ci->load->library('form_validation');
-		}
+		self::load_validation();
+
 		foreach(self::$_forms[$form_name]['fields'] as $name => $attr)
 		{
 			$post_name = str_replace('[]', '', $name);
 
 			$value = isset($_POST[$post_name]) ? $_POST[$post_name] : NULL;
 			self::set_value($form_name, $name, $value);
+		}
+	}
+
+	/**
+	 * Load Validation
+	 *
+	 * Checks if the form_validation library is loaded.  If it is not it loads it.
+	 *
+	 * @access	private
+	 * @return	void
+	 */
+	private static function load_validation()
+	{
+		if(!class_exists('CI_Form_validation'))
+		{
+			self::$_ci->load->library('form_validation');
 		}
 	}
 }
