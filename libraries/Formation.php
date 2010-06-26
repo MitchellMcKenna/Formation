@@ -158,11 +158,11 @@ class Formation
 	 *
 	 * Returns the form with all fields and options as an array
 	 *
-	 * @access	public
+	 * @access	private
 	 * @param	string	$form_name
 	 * @return	array
 	 */
-	public static function get_form_array($form_name)
+	private static function get_form_array($form_name)
 	{
 		if(!self::form_exists($form_name))
 		{
@@ -717,9 +717,12 @@ class Formation
 	 * @param	mixed	$value
 	 * @return	void
 	 */
-	public static function set_value($form_name, $field_name, $value)
+	public static function set_value($form_name, $field_name, $default = NULL)
 	{
 		self::load_validation();
+
+		$post_name = str_replace('[]', '', $field_name);
+		$value = isset($_POST[$post_name]) ? $_POST[$post_name] : self::prep_value($default);
 
 		$field =& self::$_forms[$form_name]['fields'][$field_name];
 		switch($field['type'])
@@ -788,12 +791,9 @@ class Formation
 	{
 		self::load_validation();
 
-		foreach(self::$_forms[$form_name]['fields'] as $name => $attr)
+		foreach(self::$_forms[$form_name]['fields'] as $field_name => $attr)
 		{
-			$post_name = str_replace('[]', '', $name);
-
-			$value = isset($_POST[$post_name]) ? $_POST[$post_name] : NULL;
-			self::set_value($form_name, $name, $value);
+			self::set_value($form_name, $field_name);
 		}
 	}
 
