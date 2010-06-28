@@ -54,11 +54,13 @@ class Formation
 	/**
 	 * Valid types for input tags (including HTML5)
 	 */
-	private static $_valid_inputs = array('button','checkbox','color','date','datetime',
-										  'datetime-local','email','file','hidden','image',
-										  'month','number','password','radio','range',
-										  'reset','search','submit','tel','text','time',
-										  'url','week');
+	private static $_valid_inputs = array(
+		'button','checkbox','color','date','datetime',
+		'datetime-local','email','file','hidden','image',
+		'month','number','password','radio','range',
+		'reset','search','submit','tel','text','time',
+		'url','week'
+	);
 
 	// --------------------------------------------------------------------
 
@@ -138,7 +140,7 @@ class Formation
 	 * @param	array	$fields
 	 * @return	void
 	 */
-	public static function add_form($form_name, $attributes, $fields = array())
+	public static function add_form($form_name, $attributes = array(), $fields = array())
 	{
 		if(self::form_exists($form_name))
 		{
@@ -317,7 +319,7 @@ class Formation
 
 		foreach($form['fields'] as $name => $properties)
 		{
-			self::field($name, $properties);
+			$return .= self::field($name, $properties);
 		}
 
 		$return .= "\t" . self::$_config['form_wrapper_close'] . "\n";
@@ -687,6 +689,11 @@ class Formation
 	public static function validate($form_name)
 	{
 		self::load_validation();
+
+		if ( ! isset(self::$_validation[$form_name]))
+		{
+			show_error(sprintf('There are no validation fields for "%s".', $form_name));
+		}
 
 		self::$_ci->form_validation->set_rules(self::$_validation[$form_name]);
 
