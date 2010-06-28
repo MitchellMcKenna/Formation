@@ -353,11 +353,13 @@ class Formation
 	// --------------------------------------------------------------------
 
 	/**
-	 * Build field
+	 * Field
 	 *
 	 * Builds a field and returns well-formatted, valid XHTML for output.
 	 *
 	 * @access	public
+	 * @param	string	$name
+	 * @param	string	$properties
 	 * @param	string	$form_name
 	 * @return	string
 	 */
