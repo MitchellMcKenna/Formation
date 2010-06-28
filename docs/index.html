@@ -7,6 +7,8 @@
 
 <style type='text/css' media='all'>@import url('./userguide.css');</style>
 <link rel='stylesheet' type='text/css' media='all' href='../userguide.css' />
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/functions.js"></script>
 
 <meta http-equiv='expires' content='-1' />
 <meta http-equiv= 'pragma' content='no-cache' />
@@ -16,8 +18,61 @@
 <body>
 
 <!-- START NAVIGATION -->
-<div id="nav"><div id="nav_inner"></div></div>
-<div id="nav2"><a name="top">&nbsp;</a></div>
+<div id="nav"><div id="nav_inner">
+<table cellpadding="0" cellspacing="0" border="0" style="width:98%">
+	<tr>
+		<td class="td" valign="top">
+			<h3>Author Info</h3>
+			<ul>
+				<li><a href="http://dhorrigan.com">Dan Horrigan</a></li>
+				<li><a href="http://github.com/dhorrigan">GitHub</a></li>
+			</ul>
+			<h3>Basic Info</h3>
+			<ul>
+				<li><a href="#license">License</a></li>
+				<li><a href="http://github.com/dhorrigan/Formation">GitHub Repo</a></li>
+			</ul>
+			<h3>Introduction</h3>
+			<ul>
+				<li><a href="#install">Installation</a></li>
+				<li><a href="#loading">Loading the Library</a></li>
+				<li><a href="#config">Configuration</a></li>
+			</ul>
+		</td>
+		<td class="td_sep" valign="top">
+			<h3>Functions</h3>
+			<ul>
+				<li><a href="#add_form">Formation::add_form()</a></li>
+				<li><a href="#add_field">Formation::add_field()</a></li>
+				<li><a href="#add_fields">Formation::add_fields()</a></li>
+				<li><a href="#modify_field">Formation::modify_field()</a></li>
+				<li><a href="#modify_fields">Formation::modify_fields()</a></li>
+				<li><a href="#form_exists">Formation::form_exists()</a></li>
+				<li><a href="#field_exists">Formation::field_exists()</a></li>
+				<li><a href="#form">Formation::form()</a></li>
+				<li><a href="#open">Formation::open()</a></li>
+				<li><a href="#close">Formation::close()</a></li>
+			</ul>
+		</td>
+		<td class="td_sep" valign="top" style="width: 100%">
+			<h3>Functions (cont.)</h3>
+			<ul>
+				<li><a href="#input">Formation::input()</a></li>
+				<li><a href="#textarea">Formation::textarea()</a></li>
+				<li><a href="#select">Formation::select()</a></li>
+				<li><a href="#label">Formation::label()</a></li>
+				<li><a href="#prep_value">Formation::prep_value()</a></li>
+				<li><a href="#validate">Formation::validate()</a></li>
+				<li><a href="#error">Formation::error()</a></li>
+				<li><a href="#all_errors">Formation::all_errors()</a></li>
+				<li><a href="#set_value">Formation::set_value()</a></li>
+				<li><a href="#repopulate">Formation::repopulate()</a></li>
+			</ul>
+		</td>
+	</tr>
+</table>
+</div></div>
+<div id="nav2"><a name="top">&nbsp;</a><a href="#" id="toggle_toc"><img src="images/nav_toggle_darker.jpg" width="154" height="43" border="0" title="Toggle Table of Contents" alt="Toggle Table of Contents" /></a></div>
 <div id="masthead">
 <table cellpadding="0" cellspacing="0" border="0" style="width:100%">
 <tr>
@@ -55,10 +110,12 @@ Documentation
 
 <p class="important"><strong>Note:</strong>&nbsp;This documentation is still in progress.  Check back for more updates.</p>
 
+<a name="license"></a>
 <h2>License</h2>
 
 <p>Formation is released under the Apache License v2.0. You can read the license here: <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">http://www.apache.org/licenses/LICENSE-2.0</a></p>
 
+<a name="install"></a>
 <h2>Installation</h2>
 
 <ol>
@@ -68,6 +125,7 @@ Documentation
 </ol>
 
 
+<a name="loading"></a>
 <h2>Loading Formation</h2>
 
 <p>You load Formation just link any other library:</p>
@@ -75,6 +133,7 @@ Documentation
 	$this->load->library('formation');<br />
 </code>
 
+<a name="config"></a>
 <h2>Configuration</h2>
 
 <p>Configuring Formation is simple.  In your formation.php config the following options are <strong>REQUIRED</strong>:</p>
@@ -114,28 +173,170 @@ $formation['forms']['form_name_here'] = array(<br />
 );
 </code>
 
+<h2>General Information</h2>
+<p>It is important to understand the philosophy behind the library.  The philosophy is to be as flexible as possible.  The library does not restrict you to certain attributes.</p>
+<p>We also strive to make it as consistent as possible. Almost all of the functions in the library take associative arrays.  There are a few options that are required for each type of form element, each of those will be described in their respective function reference.</p>
+
 <h1>Function Reference</h1>
 
+
+<a name="add_form"></a>
 <h2>Formation::add_form()</h2>
+<p>This is used to add a new form to be generated.  It accepts 3 parameters:</p>
+<ol>
+	<li>Form Name - String used to reference the form</li>
+	<li>Form Attributes (optional) - An array of form tag attributes</li>
+	<li>Form Fields (optional) - An array of fields.</li>
+</ol>
+<h4>Basic Usage</h4>
+<code>Formation::add_form('new_product', array('action' => 'product/new'));</code>
+<h4>Extended Usage</h4>
+<code>
+$fields['name'] = array(<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'type' => 'text',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'label' => 'Name',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'size' => '40',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'validation' => 'trim|required'<br />
+);<br />
+$fields['desc'] = array(<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'type' => 'textarea',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'label' => 'Description',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'cols' => '40',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'rows' => '6',<br />
+&nbsp;&nbsp;&nbsp;&nbsp;'validation' => 'trim|required'<br />
+);<br />
+Formation::add_form('new_product', array('action' => 'product/new'), $fields);<br />
+</code>
+
+
+<a name="add_field"></a>
 <h2>Formation::add_field()</h2>
+<p></p>
+<code></code>
+
+
+<a name="add_fields"></a>
 <h2>Formation::add_fields()</h2>
+<p></p>
+<code></code>
+
+
+<a name="modify_field"></a>
 <h2>Formation::modify_field()</h2>
+<p></p>
+<code></code>
+
+
+<a name="modify_fields"></a>
 <h2>Formation::modify_fields()</h2>
+<p></p>
+<code></code>
+
+
+<a name="form_exists"></a>
 <h2>Formation::form_exists()</h2>
+<p></p>
+<code></code>
+
+
+<a name="field_exists"></a>
 <h2>Formation::field_exists()</h2>
+<p></p>
+<code></code>
+
+
+<a name="form"></a>
 <h2>Formation::form()</h2>
+<p></p>
+<code></code>
+
+
+<a name="open"></a>
 <h2>Formation::open()</h2>
+<p></p>
+<code></code>
+
+
+<a name="close"></a>
 <h2>Formation::close()</h2>
+<p>Returns the closing form tag.</p>
+<h4>Usage</h4>
+<code>&lt;?php echo Formation::close(); ?&gt;</code>
+
+
+<a name="input"></a>
 <h2>Formation::input()</h2>
+<p></p>
+<code></code>
+
+
+<a name="textarea"></a>
 <h2>Formation::textarea()</h2>
+<p></p>
+<code></code>
+
+
+<a name="select"></a>
 <h2>Formation::select()</h2>
+<p></p>
+<code></code>
+
+
+<a name="label"></a>
 <h2>Formation::label()</h2>
+<p></p>
+<code></code>
+
+
+<a name="prep_value"></a>
 <h2>Formation::prep_value()</h2>
+<p>Prepairs a form value for output and returns it.</p>
+<h4>Usage</h4>
+<code>$value = Formation::prep_value($value);</code>
+
+
+<a name="validate"></a>
 <h2>Formation::validate()</h2>
+<p></p>
+<code></code>
+
+
+<a name="error"></a>
 <h2>Formation::error()</h2>
+<p>Returns a validation error for a specific field.  The function takes 3 parameters:</p>
+<ol>
+	<li>Field Name - The name of the field to get the error for.</li>
+	<li>Prefix (optional) - Prefix the error with this.</li>
+	<li>Suffix (optional) - Suffix the error with this.</li>
+</ol>
+<h4>Basic Usage</h4>
+<code>&lt;?php echo Formation::error('name'); ?&gt;</code>
+<h4>Extended Usage</h4>
+<code>&lt;?php echo Formation::error('name', '&lt;span class="error"&gt;', '&lt;/span&gt;'); ?&gt;</code>
+
+
+<a name="all_errors"></a>
 <h2>Formation::all_errors()</h2>
+<p>Returns all validation errors.  The function takes 2 parameters:</p>
+<ol>
+	<li>Prefix (optional) - Prefix the errors with this.</li>
+	<li>Suffix (optional) - Suffix the errors with this.</li>
+</ol>
+<h4>Basic Usage</h4>
+<code>&lt;?php echo Formation::all_errors(); ?&gt;</code>
+<h4>Extended Usage</h4>
+<code>&lt;?php echo Formation::all_errors('&lt;p class="error"&gt;', '&lt;/p&gt;'); ?&gt;</code>
+
+
+<a name="set_value"></a>
 <h2>Formation::set_value()</h2>
+<p></p>
+<code></code>
+
+<a name="repopulate"></a>
 <h2>Formation::repopulate()</h2>
+<p></p>
+<code></code>
 
 </div>
 <!-- END CONTENT -->
