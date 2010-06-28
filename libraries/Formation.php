@@ -356,7 +356,6 @@ class Formation
 	 * @param	string	$form_name
 	 * @return	string
 	 */
-
 	function field($name, $properties = array())
 	{
 		$return = '';
@@ -710,11 +709,6 @@ class Formation
 			return FALSE;
 		}
 		self::load_validation();
-
-		if ( ! isset(self::$_validation[$form_name]))
-		{
-			show_error(sprintf('There are no validation fields for "%s".', $form_name));
-		}
 
 		self::$_ci->form_validation->set_rules(self::$_validation[$form_name]);
 
