@@ -1,0 +1,12 @@
+h1. Formation
+
+* Author: "Dan Horrigan":http://dhorrigan.com/
+
+h2. DESCRIPTION
+
+The Formation library allows you to easily generate forms on the fly with well-formatted, valid XHTML. It can either create the forms dynamically given a configuration, or you can use the "helper" functions to create your own form.
+
+
+h2. DOCUMENTATION
+
+"http://dhorrigan.com/formation":http://dhorrigan.com/formation

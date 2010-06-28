@@ -9,6 +9,19 @@
  * @subpackage	Formation
  * @author		Dan Horrigan <http://dhorrigan.com>
  * @license		Apache License v2.0
+ * @copyright	2010 Dan Horrigan
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 /**
@@ -33,6 +46,20 @@ class Formation
 	 */
 	private static $_forms = array();
 
+	/**
+	 * Used to store the form_validation info
+	 */
+	private static $_validation = array();
+
+	/**
+	 * Valid types for input tags (including HTML5)
+	 */
+	private static $_valid_inputs = array('button','checkbox','color','date','datetime',
+										  'datetime-local','email','file','hidden','image',
+										  'month','number','password','radio','range',
+										  'reset','search','submit','tel','text','time',
+										  'url','week');
+
 	// --------------------------------------------------------------------
 
 	/**
@@ -55,7 +82,7 @@ class Formation
 			{
 				show_error('Formation config is not formatted correctly.');
 			}
-			self::$_config = $formation;
+			self::add_config($formation);
 		}
 		else
 		{
@@ -66,19 +93,6 @@ class Formation
 		if(!empty($custom_config))
 		{
 			self::add_config($custom_config);
-		}
-
-		// Add the forms from the config file
-		if(isset(self::$_config['forms']) AND is_array(self::$_config['forms']))
-		{
-			foreach(self::$_config['forms'] as $form_name => $attributes)
-			{
-				$fields = $attributes['fields'];
-				unset($attributes['fields']);
-
-				self::add_form($form_name, $attributes, $fields);
-			}
-			unset(self::$_config['forms']);
 		}
 	}
 
@@ -96,6 +110,19 @@ class Formation
 	public static function add_config($config)
 	{
 		self::$_config = array_merge_recursive(self::$_config, $config);
+
+		// Add the forms from the config array
+		if(isset(self::$_config['forms']) AND is_array(self::$_config['forms']))
+		{
+			foreach(self::$_config['forms'] as $form_name => $attributes)
+			{
+				$fields = $attributes['fields'];
+				unset($attributes['fields']);
+
+				self::add_form($form_name, $attributes, $fields);
+			}
+			unset(self::$_config['forms']);
+		}
 	}
 
 	// --------------------------------------------------------------------
@@ -120,6 +147,8 @@ class Formation
 
 		self::$_forms[$form_name]['attributes'] = $attributes;
 		self::$_forms[$form_name]['fields'] = $fields;
+
+		self::parse_validation();
 	}
 
 	// --------------------------------------------------------------------
@@ -129,11 +158,11 @@ class Formation
 	 *
 	 * Returns the form with all fields and options as an array
 	 *
-	 * @access	public
+	 * @access	private
 	 * @param	string	$form_name
 	 * @return	array
 	 */
-	public static function get_form_array($form_name)
+	private static function get_form_array($form_name)
 	{
 		if(!self::form_exists($form_name))
 		{
@@ -167,7 +196,9 @@ class Formation
 			show_error(sprintf('Field "%s" already exists in form "%s".  If you were trying to modify the field, please use Formation::modify_field($form_name, $field_name, $attributes).', $field_name, $form_name));
 		}
 
-		self::$_forms[$form_name][$field_name] = $attributes;
+		self::$_forms[$form_name]['fields'][$field_name] = $attributes;
+
+		self::parse_validation();
 	}
 
 	// --------------------------------------------------------------------
@@ -210,6 +241,8 @@ class Formation
 			show_error(sprintf('Field "%s" does not exist in form "%s".', $field_name, $form_name));
 		}
 		self::$_forms[$form_name]['fields'][$field_name] = array_merge_recursive(self::$_forms[$form_name][$field_name], $attributes);
+
+		self::parse_validation();
 	}
 
 	// --------------------------------------------------------------------
@@ -515,7 +548,7 @@ class Formation
 		{
 			show_error('You must specify a type for the input.');
 		}
-		elseif(!in_array($options['type'], array('text', 'radio', 'checkbox', 'hidden', 'password', 'file', 'submit', 'cancel')))
+		elseif(!in_array($options['type'], self::$_valid_inputs))
 		{
 			show_error(sprintf('"%s" is not a valid input type.', $options['type']));
 		}
@@ -605,6 +638,209 @@ class Formation
 		$value = str_replace(array("'", '"'), array("&#39;", "&quot;"), $value);
 
 		return $value;
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * Parse Validation
+	 *
+	 * Adds the validation rules in each field to the $_validation array
+	 * and removes it from the field attributes
+	 *
+	 * @access	private
+	 * @return	void
+	 */
+	private static function parse_validation()
+	{
+		foreach(self::$_forms as $form_name => $form)
+		{
+			$i = 0;
+			foreach($form['fields'] as $name => $attr)
+			{
+				if(!isset($attr['validation']))
+				{
+					continue;
+				}
+
+				self::$_validation[$form_name][$i]['field'] = $name;
+				self::$_validation[$form_name][$i]['label'] = $attr['label'];
+				self::$_validation[$form_name][$i]['rules'] = $attr['validation'];
+				$i++;
+
+				unset(self::$_forms[$form_name]['fields'][$name]['validation']);
+			}
+		}
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * Validate
+	 *
+	 * Runs form validation on the given form
+	 *
+	 * @access	public
+	 * @param	string	$form_name
+	 * @return	bool
+	 */
+	public static function validate($form_name)
+	{
+		self::load_validation();
+
+		self::$_ci->form_validation->set_rules(self::$_validation[$form_name]);
+
+		return self::$_ci->form_validation->run();
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * Error
+	 *
+	 * Returns a single form validation error
+	 *
+	 * @access	public
+	 * @param	string	$field_name
+	 * @param	string	$prefix
+	 * @param	string	$suffix
+	 * @return	string
+	 */
+	public static function error($prefix = '', $suffix = '')
+	{
+		self::load_validation();
+
+		return self::$_ci->form_validation->error($field_name, $prefix, $suffix);
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * All Errors
+	 *
+	 * Returns all of the form validation errors
+	 *
+	 * @access	public
+	 * @param	string	$prefix
+	 * @param	string	$suffix
+	 * @return	string
+	 */
+	public static function all_errors($prefix = '', $suffix = '')
+	{
+		self::load_validation();
+
+		return self::$_ci->form_validation->error_string($prefix, $suffix);
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * Set Value
+	 *
+	 * Set's a fields value
+	 *
+	 * @access	public
+	 * @param	string	$form_name
+	 * @param	string	$field_name
+	 * @param	mixed	$value
+	 * @return	void
+	 */
+	public static function set_value($form_name, $field_name, $default = NULL)
+	{
+		self::load_validation();
+
+		$post_name = str_replace('[]', '', $field_name);
+		$value = isset($_POST[$post_name]) ? $_POST[$post_name] : self::prep_value($default);
+
+		$field =& self::$_forms[$form_name]['fields'][$field_name];
+		switch($field['type'])
+		{
+			case 'radio': case 'checkbox':
+				if(isset($field['items']))
+				{
+					foreach($field['items'] as &$element)
+					{
+						if(is_array($value))
+						{
+							if(in_array($element['value'], $value))
+							{
+								$element['checked'] = 'checked';
+							}
+							else
+							{
+								if(isset($element['checked']))
+								{
+									unset($element['checked']);
+								}
+							}
+						}
+						else
+						{
+							if($element['value'] === $value)
+							{
+								$element['checked'] = 'checked';
+							}
+							else
+							{
+								if(isset($element['checked']))
+								{
+									unset($element['checked']);
+								}
+							}
+						}
+					}
+				}
+				else
+				{
+					$field['value'] = $value;
+				}
+				break;
+			case 'select':
+				$field['selected'] = $value;
+				break;
+			default:
+				$field['value'] = self::prep_value($value);
+				break;
+		}
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * Repopulate
+	 *
+	 * Repopulates the entire form with the submitted data.
+	 *
+	 * @access	public
+	 * @param	string	$form_name
+	 * @return	string
+	 */
+	public static function repopulate($form_name)
+	{
+		self::load_validation();
+
+		foreach(self::$_forms[$form_name]['fields'] as $field_name => $attr)
+		{
+			self::set_value($form_name, $field_name);
+		}
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * Load Validation
+	 *
+	 * Checks if the form_validation library is loaded.  If it is not it loads it.
+	 *
+	 * @access	private
+	 * @return	void
+	 */
+	private static function load_validation()
+	{
+		if(!class_exists('CI_Form_validation'))
+		{
+			self::$_ci->load->library('form_validation');
+		}
 	}
 }
 
