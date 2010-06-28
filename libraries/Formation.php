@@ -65,12 +65,29 @@ class Formation
 	/**
 	 * Construct
 	 *
-	 * Imports the global config and custom config (if given).
+	 * Imports the global config and custom config (if given).  We have this
+	 * to support CI's loader which calls the construct.
 	 *
 	 * @access	public
 	 * @param	array	$custom_config
 	 */
 	public function __construct($custom_config = array())
+	{
+		self::init($custom_config);
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * Init
+	 *
+	 * Imports the global config and custom config (if given) and initializes
+	 * the global CI instance.
+	 *
+	 * @access	public
+	 * @param	array	$custom_config
+	 */
+	public static function init($custom_config = array())
 	{
 		self::$_ci =& get_instance();
 
@@ -678,7 +695,7 @@ class Formation
 	 * @param	string	$suffix
 	 * @return	string
 	 */
-	public static function error($prefix = '', $suffix = '')
+	public static function error($field_name, $prefix = '', $suffix = '')
 	{
 		self::load_validation();
 
@@ -719,6 +736,11 @@ class Formation
 	 */
 	public static function set_value($form_name, $field_name, $default = NULL)
 	{
+		if($value === NULL)
+		{
+			return;
+		}
+		
 		self::load_validation();
 
 		$post_name = str_replace('[]', '', $field_name);
