@@ -675,6 +675,10 @@ class Formation
 	 */
 	public static function validate($form_name)
 	{
+		if(!isset(self::$_validation[$form_name]))
+		{
+			return FALSE;
+		}
 		self::load_validation();
 
 		self::$_ci->form_validation->set_rules(self::$_validation[$form_name]);
@@ -736,11 +740,6 @@ class Formation
 	 */
 	public static function set_value($form_name, $field_name, $default = NULL)
 	{
-		if($value === NULL)
-		{
-			return;
-		}
-		
 		self::load_validation();
 
 		$post_name = str_replace('[]', '', $field_name);
@@ -815,7 +814,7 @@ class Formation
 
 		foreach(self::$_forms[$form_name]['fields'] as $field_name => $attr)
 		{
-			self::set_value($form_name, $field_name);
+			self::set_value($form_name, $field_name, (isset($attr['value']) ? $attr['value'] : NULL));
 		}
 	}
 
