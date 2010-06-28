@@ -706,7 +706,7 @@ class Formation
 	{
 		if(!isset(self::$_validation[$form_name]))
 		{
-			return FALSE;
+			return TRUE;
 		}
 		self::load_validation();
 
