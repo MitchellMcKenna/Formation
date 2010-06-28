@@ -165,7 +165,7 @@ class Formation
 		}
 
 		self::$_forms[$form_name]['attributes'] = $attributes;
-		self::$_forms[$form_name]['fields'] = $fields;
+		self::add_fields($form_name, $fields);
 
 		self::parse_validation();
 	}
@@ -216,6 +216,11 @@ class Formation
 		}
 
 		self::$_forms[$form_name]['fields'][$field_name] = $attributes;
+
+		if($attributes['type'] == 'file')
+		{
+			self::$_forms[$form_name]['attributes']['enctype'] = 'multipart/form-data';
+		}
 
 		self::parse_validation();
 	}
