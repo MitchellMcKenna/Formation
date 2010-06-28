@@ -245,11 +245,7 @@ class Formation
 	 */
 	public static function form_exists($form_name)
 	{
-		if(!isset(self::$_forms[$form_name]))
-		{
-			return FALSE;
-		}
-		return TRUE;
+		return isset(self::$_forms[$form_name]);
 	}
 
 	// --------------------------------------------------------------------
@@ -265,11 +261,7 @@ class Formation
 	 */
 	public static function field_exists($form_name, $field_name)
 	{
-		if(!isset(self::$_forms[$form_name]['fields'][$field_name]))
-		{
-			return FALSE;
-		}
-		return TRUE;
+		return isset(self::$_forms[$form_name]['fields'][$field_name]);
 	}
 
 	// --------------------------------------------------------------------
@@ -292,64 +284,86 @@ class Formation
 
 		foreach($form['fields'] as $name => $properties)
 		{
-			if(!isset($properties['name']))
-			{
-				$properties['name'] = $name;
-			}
-			switch($properties['type'])
-			{
-				case 'hidden':
-					$return .= "\t\t" . self::input($properties) . "\n";
-					break;
-				case 'radio': case 'checkbox':
-					$return .= "\t\t" . self::$_config['input_wrapper_open'] . "\n";
-					$return .= "\t\t\t" . sprintf(self::$_config['label_wrapper_open'], $name) . $properties['label'] . self::$_config['label_wrapper_close'] . "\n";
-					if(isset($properties['items']))
-					{
-						$return .= "\t\t\t<span>\n";
-						foreach($properties['items'] as $count => $element)
-						{
-							if(!isset($element['id']))
-							{
-								$element['id'] = $name . '_' . $count;
-							}
-							$element['type'] = $properties['type'];
-							$element['name'] = $properties['name'];
-							$return .= "\t\t\t\t" . sprintf(self::$_config['label_wrapper_open'], $element['id']) . $element['label'] . self::$_config['label_wrapper_close'] . "\n";
-							$return .= "\t\t\t\t" . self::input($element) . "\n";
-						}
-						$return .= "\t\t\t</span>\n";
-					}
-					else
-					{
-						$return .= "\t\t\t" . sprintf(self::$_config['label_wrapper_open'], $name) . $properties['label'] . self::$_config['label_wrapper_close'] . "\n";
-						$return .= "\t\t\t" . self::input($properties) . "\n";
-					}
-					$return .= "\t\t" . self::$_config['input_wrapper_close'] . "\n";
-					break;
-				case 'select':
-					$return .= "\t\t" . self::$_config['input_wrapper_open'] . "\n";
-					$return .= "\t\t\t" . sprintf(self::$_config['label_wrapper_open'], $name) . $properties['label'] . self::$_config['label_wrapper_close'] . "\n";
-					$return .= "\t\t\t" . self::select($properties, 3) . "\n";
-					$return .= "\t\t" . self::$_config['input_wrapper_close'] . "\n";
-					break;
-				case 'textarea':
-					$return .= "\t\t" . self::$_config['input_wrapper_open'] . "\n";
-					$return .= "\t\t\t" . sprintf(self::$_config['label_wrapper_open'], $name) . $properties['label'] . self::$_config['label_wrapper_close'] . "\n";
-					$return .= "\t\t\t" . self::textarea($properties) . "\n";
-					$return .= "\t\t" . self::$_config['input_wrapper_close'] . "\n";
-					break;
-				default:
-					$return .= "\t\t" . self::$_config['input_wrapper_open'] . "\n";
-					$return .= "\t\t\t" . sprintf(self::$_config['label_wrapper_open'], $name) . $properties['label'] . self::$_config['label_wrapper_close'] . "\n";
-					$return .= "\t\t\t" . self::input($properties) . "\n";
-					$return .= "\t\t" . self::$_config['input_wrapper_close'] . "\n";
-					break;
-			}
+			self::field($name, $properties);
 		}
 
 		$return .= "\t" . self::$_config['form_wrapper_close'] . "\n";
 		$return .= self::close() . "\n";
+
+		return $return;
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * Build field
+	 *
+	 * Builds a field and returns well-formatted, valid XHTML for output.
+	 *
+	 * @access	public
+	 * @param	string	$form_name
+	 * @return	string
+	 */
+
+	function field($name, $properties = array())
+	{
+		$return = '';
+
+		if(!isset($properties['name']))
+		{
+			$properties['name'] = $name;
+		}
+
+		switch($properties['type'])
+		{
+			case 'hidden':
+				$return .= "\t\t" . self::input($properties) . "\n";
+				break;
+			case 'radio': case 'checkbox':
+				$return .= "\t\t" . self::$_config['input_wrapper_open'] . "\n";
+				$return .= "\t\t\t" . sprintf(self::$_config['label_wrapper_open'], $name) . $properties['label'] . self::$_config['label_wrapper_close'] . "\n";
+				if(isset($properties['items']))
+				{
+					$return .= "\t\t\t<span>\n";
+					foreach($properties['items'] as $count => $element)
+					{
+						if(!isset($element['id']))
+						{
+							$element['id'] = $name . '_' . $count;
+						}
+						$element['type'] = $properties['type'];
+						$element['name'] = $properties['name'];
+						$return .= "\t\t\t\t" . sprintf(self::$_config['label_wrapper_open'], $element['id']) . $element['label'] . self::$_config['label_wrapper_close'] . "\n";
+						$return .= "\t\t\t\t" . self::input($element) . "\n";
+					}
+					$return .= "\t\t\t</span>\n";
+				}
+				else
+				{
+					$return .= "\t\t\t" . sprintf(self::$_config['label_wrapper_open'], $name) . $properties['label'] . self::$_config['label_wrapper_close'] . "\n";
+					$return .= "\t\t\t" . self::input($properties) . "\n";
+				}
+				$return .= "\t\t" . self::$_config['input_wrapper_close'] . "\n";
+				break;
+			case 'select':
+				$return .= "\t\t" . self::$_config['input_wrapper_open'] . "\n";
+				$return .= "\t\t\t" . sprintf(self::$_config['label_wrapper_open'], $name) . $properties['label'] . self::$_config['label_wrapper_close'] . "\n";
+				$return .= "\t\t\t" . self::select($properties, 3) . "\n";
+				$return .= "\t\t" . self::$_config['input_wrapper_close'] . "\n";
+				break;
+			case 'textarea':
+				$return .= "\t\t" . self::$_config['input_wrapper_open'] . "\n";
+				$return .= "\t\t\t" . sprintf(self::$_config['label_wrapper_open'], $name) . $properties['label'] . self::$_config['label_wrapper_close'] . "\n";
+				$return .= "\t\t\t" . self::textarea($properties) . "\n";
+				$return .= "\t\t" . self::$_config['input_wrapper_close'] . "\n";
+				break;
+			default:
+				$return .= "\t\t" . self::$_config['input_wrapper_open'] . "\n";
+				$return .= "\t\t\t" . sprintf(self::$_config['label_wrapper_open'], $name) . $properties['label'] . self::$_config['label_wrapper_close'] . "\n";
+				$return .= "\t\t\t" . self::input($properties) . "\n";
+				$return .= "\t\t" . self::$_config['input_wrapper_close'] . "\n";
+				break;
+		}
 
 		return $return;
 	}
@@ -418,13 +432,27 @@ class Formation
 	 * @param	array	$options
 	 * @return	string
 	 */
-	public static function open($action = '', $options = array())
+	public static function open($name = NULL, $options = array())
 	{
+		if($name && !isset($options['action']))
+		{
+			$options['action'] = $name;
+		}
+
+		// If there is no action, self-post
+		if(empty($options['action']))
+		{
+			$options['action'] = self::$_ci->uri->uri_string();
+		}
+
+		// If not a full URL, create one with CI
+		if ( ! strpos($options['action'], '://'))
+		{
+			self::$_ci->config->site_url($options['action']);
+		}
+
+		// If method is empty, use POST
 		isset($options['method']) OR $options['method'] = 'post';
-
-		($action !== NULL) AND $options['action'] = $action;
-
-		$options['action'] = (strpos($options['action'], '://') === FALSE) ? self::$_ci->config->site_url($options['action']) : $options['action'];
 
 		$form = '<form ' . self::attr_to_string($options) . '>';
 
