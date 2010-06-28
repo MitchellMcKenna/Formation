@@ -341,7 +341,7 @@ class Formation
 
 		foreach($form['fields'] as $name => $properties)
 		{
-			$return .= self::field($name, $properties);
+			$return .= self::field($name, $properties, $form_name);
 		}
 
 		$return .= "\t" . self::$_config['form_wrapper_close'] . "\n";
@@ -361,7 +361,7 @@ class Formation
 	 * @param	string	$form_name
 	 * @return	string
 	 */
-	function field($name, $properties = array())
+	function field($name, $properties = array(), $form_name = NULL)
 	{
 		$return = '';
 
@@ -370,13 +370,30 @@ class Formation
 			$properties['name'] = $name;
 		}
 
+		$required = FALSE;
+		if(isset(self::$_validation[$form_name]))
+		{
+			foreach(self::$_validation[$form_name] as $rule)
+			{
+				if($rule['field'] == $properties['name'] AND strpos('required', $rule['rules']) !== FALSE)
+				{
+					$required = TRUE;
+
+				}
+			}
+		}
+		$return .= "\t\t" . self::$_config['input_wrapper_open'] . "\n";
+
+		if($required AND self::$_config['required_location'] == 'before')
+		{
+			$return .= "\t\t\t" . self::$_config['required_tag'] . "\n";
+		}
 		switch($properties['type'])
 		{
 			case 'hidden':
-				$return .= "\t\t" . self::input($properties) . "\n";
+				$return .= "\t\t\t" . self::input($properties) . "\n";
 				break;
 			case 'radio': case 'checkbox':
-				$return .= "\t\t" . self::$_config['input_wrapper_open'] . "\n";
 				$return .= "\t\t\t" . sprintf(self::$_config['label_wrapper_open'], $name) . $properties['label'] . self::$_config['label_wrapper_close'] . "\n";
 				if(isset($properties['items']))
 				{
@@ -399,27 +416,27 @@ class Formation
 					$return .= "\t\t\t" . sprintf(self::$_config['label_wrapper_open'], $name) . $properties['label'] . self::$_config['label_wrapper_close'] . "\n";
 					$return .= "\t\t\t" . self::input($properties) . "\n";
 				}
-				$return .= "\t\t" . self::$_config['input_wrapper_close'] . "\n";
 				break;
 			case 'select':
-				$return .= "\t\t" . self::$_config['input_wrapper_open'] . "\n";
 				$return .= "\t\t\t" . sprintf(self::$_config['label_wrapper_open'], $name) . $properties['label'] . self::$_config['label_wrapper_close'] . "\n";
 				$return .= "\t\t\t" . self::select($properties, 3) . "\n";
-				$return .= "\t\t" . self::$_config['input_wrapper_close'] . "\n";
 				break;
 			case 'textarea':
-				$return .= "\t\t" . self::$_config['input_wrapper_open'] . "\n";
 				$return .= "\t\t\t" . sprintf(self::$_config['label_wrapper_open'], $name) . $properties['label'] . self::$_config['label_wrapper_close'] . "\n";
 				$return .= "\t\t\t" . self::textarea($properties) . "\n";
-				$return .= "\t\t" . self::$_config['input_wrapper_close'] . "\n";
 				break;
 			default:
-				$return .= "\t\t" . self::$_config['input_wrapper_open'] . "\n";
 				$return .= "\t\t\t" . sprintf(self::$_config['label_wrapper_open'], $name) . $properties['label'] . self::$_config['label_wrapper_close'] . "\n";
 				$return .= "\t\t\t" . self::input($properties) . "\n";
-				$return .= "\t\t" . self::$_config['input_wrapper_close'] . "\n";
 				break;
 		}
+
+		if($required AND self::$_config['required_location'] == 'after')
+		{
+			$return .= "\t\t\t" . self::$_config['required_tag'] . "\n";
+		}
+
+		$return .= "\t\t" . self::$_config['input_wrapper_close'] . "\n";
 
 		return $return;
 	}
@@ -678,6 +695,10 @@ class Formation
 	{
 		foreach(self::$_forms as $form_name => $form)
 		{
+			if(!isset($form['fields']))
+			{
+				continue;
+			}
 			$i = 0;
 			foreach($form['fields'] as $name => $attr)
 			{
