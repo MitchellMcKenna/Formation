@@ -370,7 +370,7 @@ class Formation
 		{
 			foreach (self::$_validation[$form_name] as $rule)
 			{
-				if ($rule['field'] == $properties['name'] AND strpos('required', $rule['rules']) !== FALSE)
+				if ($rule['field'] == $properties['name'] AND $rule['rules'] AND strpos('required', $rule['rules']) !== FALSE)
 				{
 					$required = TRUE;
 				}
