@@ -314,15 +314,8 @@ class Formation
 	{
 		$form = self::get_form_array($form_name);
 
-		$return = self::open(NULL, $form['attributes']) . "\n";
-		$return .= "\t" . self::$_config['form_wrapper_open'] . "\n";
-
-		foreach($form['fields'] as $name => $properties)
-		{
-			$return .= self::field($name, $properties);
-		}
-
-		$return .= "\t" . self::$_config['form_wrapper_close'] . "\n";
+		$return = self::open($form_name) . "\n";
+		$return .= self::fields($form_name);
 		$return .= self::close() . "\n";
 
 		return $return;
@@ -467,15 +460,24 @@ class Formation
 	 * @param	array	$options
 	 * @return	string
 	 */
-	public static function open($name = NULL, $options = array())
+	public static function open($form_name = NULL, $options = array())
 	{
-		if($name && !isset($options['action']))
+		// The form name does not exist, must be an action as its not set in options either
+		if (self::form_exists($form_name))
 		{
-			$options['action'] = $name;
+			$form = self::get_form_array($form_name);
+
+			$options = array_merge($form['attributes'], $options);
 		}
 
-		// If there is no action, self-post
-		if(empty($options['action']))
+		// There is a form name, but no action is set
+		elseif ( $form_name && ! isset($options['action']))
+		{
+			$options['action'] = $form_name;
+		}
+
+		// If there is still no action set, self-post
+		if (empty($options['action']))
 		{
 			$options['action'] = self::$_ci->uri->uri_string();
 		}
@@ -483,7 +485,7 @@ class Formation
 		// If not a full URL, create one with CI
 		if ( ! strpos($options['action'], '://'))
 		{
-			self::$_ci->config->site_url($options['action']);
+			$options['action'] = self::$_ci->config->site_url($options['action']);
 		}
 
 		// If method is empty, use POST
@@ -492,6 +494,34 @@ class Formation
 		$form = '<form ' . self::attr_to_string($options) . '>';
 
 		return $form;
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * Fields
+	 *
+	 * Generates the list of fields without the form open and form close tags
+	 *
+	 * @access	public
+	 * @param	string	$action
+	 * @param	array	$options
+	 * @return	string
+	 */
+	public static function fields($form_name)
+	{
+		$form = self::get_form_array($form_name);
+
+		$return = "\t" . self::$_config['form_wrapper_open'] . "\n";
+
+		foreach($form['fields'] as $name => $properties)
+		{
+			$return .= self::field($name, $properties);
+		}
+
+		$return .= "\t" . self::$_config['form_wrapper_close'] . "\n";
+
+		return $return;
 	}
 
 	// --------------------------------------------------------------------
