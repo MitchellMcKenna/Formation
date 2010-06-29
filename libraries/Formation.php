@@ -731,20 +731,20 @@ class Formation
 			{
 				continue;
 			}
+
 			$i = 0;
 			foreach($form['fields'] as $name => $attr)
 			{
-				if(!isset($attr['validation']))
+				if (isset($attr['validation']))
 				{
-					continue;
+					self::$_validation[$form_name][$i]['field'] = $name;
+					self::$_validation[$form_name][$i]['label'] = $attr['label'];
+					self::$_validation[$form_name][$i]['rules'] = $attr['validation'];
+
+					unset(self::$_forms[$form_name]['fields'][$name]['validation']);
 				}
 
-				self::$_validation[$form_name][$i]['field'] = $name;
-				self::$_validation[$form_name][$i]['label'] = $attr['label'];
-				self::$_validation[$form_name][$i]['rules'] = $attr['validation'];
-				$i++;
-
-				unset(self::$_forms[$form_name]['fields'][$name]['validation']);
+				++$i;
 			}
 		}
 	}
