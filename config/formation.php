@@ -22,6 +22,9 @@
 | $formation['label_wrapper_open']	= '<label for="%s">';
 | $formation['label_wrapper_close']	= '</label>';
 |
+| $formation['required_location']	= 'after';
+| $formation['required_tag']		= '<span class="required">*</span>';
+|
 | Would result in the following form:
 | <form action="" method="post">
 | <ul>
@@ -40,6 +43,9 @@ $formation['input_wrapper_close']	= '</p>';
 
 $formation['label_wrapper_open']	= '<label for="%s">';
 $formation['label_wrapper_close']	= '</label>';
+
+$formation['required_location']		= 'after';
+$formation['required_tag']			= '<span class="required">*</span>';
 
 $formation['forms']['create_user'] = array(
 	'action'	=> 'users/create',
