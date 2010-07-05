@@ -619,6 +619,10 @@ class Formation
 		
 		foreach ($hidden as $name => $properties)
 		{
+			if ( ! isset($properties['name']))
+			{
+				$properties['name'] = $name;
+			}
 			$return .= "\t" . self::input($properties) . "\n";
 		}
 		
