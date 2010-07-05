@@ -600,17 +600,28 @@ class Formation
 	 */
 	public static function fields($form_name)
 	{
+		$hidden = array();
 		$form = self::get_form_array($form_name);
 
 		$return = "\t" . self::$_config['form_wrapper_open'] . "\n";
 
 		foreach ($form['fields'] as $name => $properties)
 		{
+			if($properties['type'] == 'hidden')
+			{
+				$hidden[$name] = $properties;
+				continue;
+			}
 			$return .= self::field($name, $properties, $form_name);
 		}
 
 		$return .= "\t" . self::$_config['form_wrapper_close'] . "\n";
-
+		
+		foreach ($hidden as $name => $properties)
+		{
+			$return .= "\t" . self::input($properties) . "\n";
+		}
+		
 		return $return;
 	}
 
