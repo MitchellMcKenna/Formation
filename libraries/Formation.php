@@ -364,7 +364,6 @@ class Formation
 		{
 			$properties['name'] = $name;
 		}
-
 		$required = FALSE;
 		if (isset(self::$_validation[$form_name]))
 		{
@@ -376,16 +375,13 @@ class Formation
 				}
 			}
 		}
-		$return .= "\t\t" . self::$_config['input_wrapper_open'] . "\n";
 
-		if ($required AND self::$_config['required_location'] == 'before')
-		{
-			$return .= "\t\t\t" . self::$_config['required_tag'] . "\n";
-		}
+		$return .= self::_open_field($properties['type'], $required);
+		
 		switch($properties['type'])
 		{
 			case 'hidden':
-				$return .= "\t\t\t" . self::input($properties) . "\n";
+				$return .= "\t\t" . self::input($properties) . "\n";
 				break;
 			case 'radio': case 'checkbox':
 				$return .= "\t\t\t" . sprintf(self::$_config['label_wrapper_open'], $name) . $properties['label'] . self::$_config['label_wrapper_close'] . "\n";
@@ -425,16 +421,71 @@ class Formation
 				break;
 		}
 
+		$return .= self::_close_field($properties['type'], $required);
+
+		return $return;
+	}
+
+	// --------------------------------------------------------------------
+	
+	/**
+	 * Open Field
+	 *
+	 * Generates the fields opening tags.
+	 *
+	 * @access	private
+	 * @param	string	$type
+	 * @param	bool	$required
+	 * @return	string
+	 */
+	private static function _open_field($type, $required = FALSE)
+	{
+		if($type == 'hidden')
+		{
+			return '';
+		}
+
+		$return = "\t\t" . self::$_config['input_wrapper_open'] . "\n";
+
+		if ($required AND self::$_config['required_location'] == 'before')
+		{
+			$return .= "\t\t\t" . self::$_config['required_tag'] . "\n";
+		}
+		
+		return $return;
+	}
+
+	// --------------------------------------------------------------------
+	
+	/**
+	 * Close Field
+	 *
+	 * Generates the fields closing tags.
+	 *
+	 * @access	private
+	 * @param	string	$type
+	 * @param	bool	$required
+	 * @return	string
+	 */
+	private static function _close_field($type, $required = FALSE)
+	{
+		if($type == 'hidden')
+		{
+			return '';
+		}
+		
+		$return = "";
+
 		if ($required AND self::$_config['required_location'] == 'after')
 		{
 			$return .= "\t\t\t" . self::$_config['required_tag'] . "\n";
 		}
 
 		$return .= "\t\t" . self::$_config['input_wrapper_close'] . "\n";
-
+		
 		return $return;
 	}
-
+	
 	// --------------------------------------------------------------------
 
 	/**
