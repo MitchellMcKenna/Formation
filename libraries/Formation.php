@@ -392,7 +392,7 @@ class Formation
 					if ($properties['type'] == 'checkbox' && count($properties['items']) > 1)
 					{
 						// More than one item exists, this should probably be an array
-						if(substr($properties['name'], -2) != '[]')
+						if (substr($properties['name'], -2) != '[]')
 						{
 							$properties['name'] .= '[]';
 						}
@@ -402,7 +402,7 @@ class Formation
 					{
 						if ( ! isset($element['id']))
 						{
-							$element['id'] = str_replace('[]', '', $name);
+							$element['id'] = str_replace('[]', '', $name) . '_' . $count;
 						}
 						
 						$element['type'] = $properties['type'];
