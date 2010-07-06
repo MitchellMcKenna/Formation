@@ -388,12 +388,23 @@ class Formation
 				if (isset($properties['items']))
 				{
 					$return .= "\t\t\t<span>\n";
+					
+					if ($properties['type'] == 'checkbox' && count($properties['items']) > 1)
+					{
+						// More than one item exists, this should probably be an array
+						if(substr($properties['name'], -2) != '[]')
+						{
+							$properties['name'] .= '[]';
+						}
+					}
+
 					foreach ($properties['items'] as $count => $element)
 					{
 						if ( ! isset($element['id']))
 						{
-							$element['id'] = $name . '_' . $count;
+							$element['id'] = str_replace('[]', '', $name);
 						}
+						
 						$element['type'] = $properties['type'];
 						$element['name'] = $properties['name'];
 						$return .= "\t\t\t\t" . sprintf(self::$_config['label_wrapper_open'], $element['id']) . $element['label'] . self::$_config['label_wrapper_close'] . "\n";
@@ -898,6 +909,7 @@ class Formation
 		$value = isset($_POST[$post_name]) ? $_POST[$post_name] : self::prep_value($default);
 
 		$field =& self::$_forms[$form_name]['fields'][$field_name];
+
 		switch($field['type'])
 		{
 			case 'radio': case 'checkbox':
