@@ -5,8 +5,7 @@
  * A CodeIgniter library that creates forms via a config file.  It
  * also contains functions to allow for creation of forms on the fly.
  *
- * @package		CodeIgniter
- * @subpackage	Formation
+ * @package		Formation
  * @author		Dan Horrigan <http://dhorrigan.com>
  * @license		Apache License v2.0
  * @copyright	2010 Dan Horrigan
@@ -356,7 +355,7 @@ class Formation
 	 * @param	string	$form_name
 	 * @return	string
 	 */
-	function field($name, $properties = array(), $form_name = NULL)
+	public static function field($name, $properties = array(), $form_name = NULL)
 	{
 		$return = '';
 
