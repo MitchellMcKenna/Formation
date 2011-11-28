@@ -263,7 +263,7 @@ class Formation
 		{
 			show_error(sprintf('Field "%s" does not exist in form "%s".', $field_name, $form_name));
 		}
-		self::$_forms[$form_name]['fields'][$field_name] = array_merge_recursive(self::$_forms[$form_name][$field_name], $attributes);
+		self::$_forms[$form_name]['fields'][$field_name] = array_merge(self::$_forms[$form_name]['fields'][$field_name], $attributes);
 
 		self::parse_validation();
 	}
@@ -284,7 +284,7 @@ class Formation
 	{
 		foreach ($fields as $field_name => $attributes)
 		{
-			self::modfy_field($form_name, $field_name, $attributes);
+			self::modify_field($form_name, $field_name, $attributes);
 		}
 	}
 
